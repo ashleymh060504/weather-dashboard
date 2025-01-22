@@ -8,6 +8,15 @@ dotenv.config();
 // TODO: Complete the WeatherService class
 class WeatherService {
   // TODO: Define the baseURL, API key, and city name properties
+  baseURL: string;
+  apiKey: string;
+  cityName: string;
+
+  constructor() {
+    this.baseURL = process.env.API_BASE_URL || "";
+    this.apiKey = process.env.API_KEY || "";
+    this.cityName = "";
+  }
   // TODO: Create fetchLocationData method
   // private async fetchLocationData(query: string) {}
   // TODO: Create destructureLocationData method
@@ -25,7 +34,19 @@ class WeatherService {
   // TODO: Complete buildForecastArray method
   // private buildForecastArray(currentWeather: Weather, weatherData: any[]) {}
   // TODO: Complete getWeatherForCity method
-  // async getWeatherForCity(city: string) {}
+  async getWeatherForCity(city: string) {
+    this.cityName = city;
+
+    // http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
+    fetch(`${this.baseURL}/geo/1.0/direct?q=${this.cityName}&appid=${this.apiKey}`) 
+    .then(res => res.json())
+    .then(data => {
+      console.log(data)
+    })
+
+
+    return []
+  }
 }
 
 export default new WeatherService();
