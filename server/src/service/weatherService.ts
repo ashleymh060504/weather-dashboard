@@ -2,12 +2,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // TODO: Define an interface for the Coordinates object
+interface Coordinates {
+  lat: number;
+  lon: number;
+}
 
 // TODO: Define a class for the Weather object
 
 // TODO: Complete the WeatherService class
 class WeatherService {
-  // TODO: Define the baseURL, API key, and city name properties
   baseURL: string;
   apiKey: string;
   cityName: string;
@@ -18,15 +21,31 @@ class WeatherService {
     this.cityName = "";
   }
   // TODO: Create fetchLocationData method
-  // private async fetchLocationData(query: string) {}
+  private async fetchLocationData(query: string): Promise<any> {
+    const res = await fetch(query);
+    const data = await res.json();
+    return data;
+  }
   // TODO: Create destructureLocationData method
-  // private destructureLocationData(locationData: Coordinates): Coordinates {}
+  private destructureLocationData(locationData: Coordinates): Coordinates {
+    const { lat, lon } = locationData;
+    return { lat, lon };
+  }
   // TODO: Create buildGeocodeQuery method
-  // private buildGeocodeQuery(): string {}
+  private buildGeocodeQuery(address: string): string {
+    return `${this.baseURL}/geocode/v1/json?q=${address}&key=${this.apiKey}`;
+  }
   // TODO: Create buildWeatherQuery method
-  // private buildWeatherQuery(coordinates: Coordinates): string {}
+  private buildWeatherQuery(coordinates: Coordinates): string {
+    const { lat, lon } = coordinates;
+    return `${this.baseURL}/weather?lat=${lat}&lon=${lon}&appid=${this.apiKey}`;
+  }
   // TODO: Create fetchAndDestructureLocationData method
-  // private async fetchAndDestructureLocationData() {}
+  private async fetchAndDestructureLocationData() {
+    const res = await this.fetchLocationData(this.buildGeocodeQuery(this.cityName));
+    const locationData = res.results[0].geometry.location;
+    const coordinates = this.destructureLocationData(locationData);
+  }
   // TODO: Create fetchWeatherData method
   // private async fetchWeatherData(coordinates: Coordinates) {}
   // TODO: Build parseCurrentWeather method
