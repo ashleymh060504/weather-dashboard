@@ -37,15 +37,65 @@ class WeatherService {
   async getWeatherForCity(city: string) {
     this.cityName = city;
 
+    // GETTING LATITUDE AND LONGITUDE FOR THE CITYNAME
     // http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
-    fetch(`${this.baseURL}/geo/1.0/direct?q=${this.cityName}&appid=${this.apiKey}`) 
-    .then(res => res.json())
-    .then(data => {
-      console.log(data)
+    const res1 = await fetch(`${this.baseURL}/geo/1.0/direct?q=${this.cityName}&appid=${this.apiKey}`)
+
+    const data1 = await res1.json()
+
+    // console.log(data);
+    const lat = data1[0].lat;
+    const lon = data1[0].lon;
+
+
+    // GETTING FORECAST FOR NEXT 5 DAYS
+    // api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
+    const res2 = await fetch(`${this.baseURL}/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${this.apiKey}`)
+
+    const data2 = await res2.json()
+
+    // console.log(data2);
+
+    const weatherData = data2.list.filter((weatherInfo: any) => {
+      return weatherInfo.dt_txt.includes("12:00:00")
     })
 
 
-    return []
+    const forecastData = weatherData.map((weatherInfo: any) => {
+      return {
+        tempF: weatherInfo.main.temp,
+        windSpeed: weatherInfo.wind.speed,
+        date: weatherInfo.dt_txt.replace("12:00:00", ""),
+        humidity: weatherInfo.main.humidity,
+        icon: weatherInfo.weather[0].icon,
+        iconDescription: weatherInfo.weather[0].description
+      }
+    })
+
+
+    // GETTING THE WEATHERDATA FOR CURRENT DAY
+    // https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
+    const res3 = await fetch(`${this.baseURL}/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${this.apiKey}`)
+    const data3 = await res3.json()
+
+    // console.log(data3)
+
+    const currentWeather = {
+      city: data3.name,
+      date: new Date().toLocaleDateString(),
+      icon: data3.weather[0].icon,
+      iconDescription: data3.weather[0].description,
+      tempF: data3.main.temp,
+      windSpeed: data3.wind.speed,
+      humidity: data3.main.humidity
+    }
+
+    forecastData.unshift(currentWeather);
+
+    console.log(forecastData);
+
+
+    return forecastData;
   }
 }
 
