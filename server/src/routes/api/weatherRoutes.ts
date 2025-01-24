@@ -32,6 +32,14 @@ router.get('/history', async (req: Request, res: Response) => {
 });
 
 // * BONUS TODO: DELETE city from search history
-router.delete('/history/:id', async (req: Request, res: Response) => {});
+router.delete('/history/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  await HistoryService.removeCity(id);
+
+  res.json({ message: 'City removed from history' });
+
+
+});
 
 export default router;

@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { v4 as uuidv4 } from 'uuid';
 
 // TODO: Define a City class with name and id properties
 
@@ -19,20 +20,39 @@ class HistoryService {
   async addCity(city: string) {
       const data = {
         name: city,
-        id: Math.random().toString(36).substr(2, 9)
+        id: uuidv4()
+        // id: Math.random().toString(36).substr(2, 9)
       }
 
       const history = await fs.readFile("db/db.json", "utf-8");
       const parsedHistory = JSON.parse(history);
 
-      parsedHistory.push(data);
+      // check if city already exists in history array
+      const cityExists = parsedHistory.some((city: any) => city.name === data.name);
+
+      if(!cityExists) {
+        parsedHistory.push(data);
+      } else {
+        console.log("city already exists!")
+      }
+
 
       await fs.writeFile("db/db.json", JSON.stringify(parsedHistory, null, 4));
 
 
   }
   // * BONUS TODO: Define a removeCity method that removes a city from the searchHistory.json file
-  // async removeCity(id: string) {}
+  async removeCity(id: string) {
+    const history = await fs.readFile("db/db.json", "utf-8");
+    const parsedHistory = JSON.parse(history);
+
+    const updatedHistory = parsedHistory.filter((city: any) => city.id !== id);
+
+    await fs.writeFile("db/db.json", JSON.stringify(updatedHistory, null, 4));
+
+    console.log("City has been removed!")
+
+  }
 }
 
 export default new HistoryService();
